@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="./login.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="brand">
+      <p class="brand-name">Mon Espace</p>
+
+      <div class="brand-body">
+        <h2 class="brand-title">Content de vous revoir.</h2>
+        <p class="brand-text">Retrouvez vos projets et vos échanges là où vous les avez laissés.</p>
+      </div>
+    </aside>
+
+    <main class="form-side">
+      <div class="form-wrap">
+        <h1>Connexion</h1>
+        <p class="lead">Saisissez vos identifiants pour accéder à votre compte.</p>
+
+        <div id="alert" class="alert" role="alert" hidden></div>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="email">Adresse e-mail</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="username"
+              spellcheck="false"
+              aria-describedby="email-error"
+            />
+            <p id="email-error" class="error"></p>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="password">Mot de passe</label>
+              <a href="#" class="link">Mot de passe oublié&nbsp;?</a>
+            </div>
+            <div class="password-wrap">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                aria-describedby="password-error"
+              />
+              <button type="button" id="toggle-password" class="toggle" aria-controls="password">
+                Afficher
+              </button>
+            </div>
+            <p id="password-error" class="error"></p>
+          </div>
+
+          <label class="remember">
+            <input type="checkbox" name="remember" />
+            Rester connecté
+          </label>
+
+          <button type="submit" class="submit">Se connecter</button>
+        </form>
+
+        <p class="signup">Pas encore de compte&nbsp;? <a href="#">Créer un compte</a></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="./login.js"></script>
+</body>
+</html>
