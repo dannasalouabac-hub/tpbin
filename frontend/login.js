@@ -27,6 +27,7 @@
   const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const MESSAGES = {
+    serverError: 'Le serveur a rencontré un problème. Réessayez plus tard.',
     emailRequired: 'Saisissez votre adresse e-mail.',
     emailInvalid: "Cette adresse e-mail n'est pas valide.",
     passwordRequired: 'Saisissez votre mot de passe.',
@@ -112,20 +113,27 @@
    *   return response.json();
    * ------------------------------------------------------------------------ */
 
-  async function requestLogin({ email, password, remember }) {
-    // Simulation d'un délai réseau, à supprimer avec le vrai appel.
-    await new Promise((resolve) => setTimeout(resolve, 900));
+ async function requestLogin({ email, password, remember }) {
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password, remember })
+    });
 
-    // Identifiants de démonstration : demo@exemple.fr / motdepasse123
-    const isValid = email === 'demo@exemple.fr' && password === 'motdepasse123';
+    const data = await response.json();
 
-    if (!isValid) {
-      throw Object.assign(new Error('Invalid credentials'), { code: 'INVALID_CREDENTIALS' });
+    if (!response.ok) {
+        throw Object.assign(new Error(data.message), {
+            code: response.status === 401
+                ? 'INVALID_CREDENTIALS'
+                : 'SERVER_ERROR'
+        });
     }
 
-    return { token: 'demo-token', remember };
-  }
-
+    return data;
+}
   /* ------------------------------------------------------------------------
    * Gestionnaires d'événements
    * --------------------------------------------------------------------- */
@@ -151,23 +159,29 @@
     setLoading(true);
 
     try {
-      await requestLogin({
-        email: emailInput.value.trim(),
-        password: passwordInput.value,
-        remember: form.elements.remember.checked,
-      });
+  const data = await requestLogin({
+    email: emailInput.value.trim(),
+    password: passwordInput.value,
+    remember: form.elements.remember.checked,
+  });
 
-      showAlert(MESSAGES.success, 'success');
-      // Redirection après connexion : adaptez l'URL à votre application.
-      // window.location.href = '/tableau-de-bord';
-    } catch (error) {
-      const message =
-        error.code === 'INVALID_CREDENTIALS' ? MESSAGES.invalidCredentials : MESSAGES.networkError;
+  showAlert(MESSAGES.success, 'success');
 
-      showAlert(message, 'error');
-      setLoading(false);
-      passwordInput.focus();
-    }
+  // Si le serveur renvoie un token, vous pouvez le garder pour les requêtes suivantes.
+  // localStorage.setItem('token', data.token);
+
+  // Redirection après connexion : créez la page cible ou gardez cette ligne commentée.
+  // window.location.href = '/tableau-de-bord.html';
+} catch (error) {
+  const messages = {
+    INVALID_CREDENTIALS: MESSAGES.invalidCredentials,
+    SERVER_ERROR: MESSAGES.serverError,
+  };
+
+  showAlert(messages[error.code] || MESSAGES.networkError, 'error');
+  setLoading(false);
+  passwordInput.focus();
+}
   });
 
   // Met à jour le message d'erreur pendant la saisie, une fois le champ marqué en erreur.

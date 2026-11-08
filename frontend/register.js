@@ -151,16 +151,24 @@
    * ------------------------------------------------------------------------ */
 
   async function requestRegister({ name, email, password }) {
-    // Simulation d'un délai réseau, à supprimer avec le vrai appel.
-    await new Promise((resolve) => setTimeout(resolve, 900));
+  const response = await fetch('/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password }),
+  });
 
-    // Démonstration : cette adresse est déjà utilisée.
-    if (email === 'deja@exemple.fr') {
-      throw Object.assign(new Error('Email taken'), { code: 'EMAIL_TAKEN' });
-    }
+  const data = await response.json().catch(() => ({}));
 
-    return { name, email, password };
+  if (response.status === 409) {
+    throw Object.assign(new Error(data.message), { code: 'EMAIL_TAKEN' });
   }
+
+  if (!response.ok) {
+    throw Object.assign(new Error(data.message || 'Erreur serveur'), { code: 'SERVER_ERROR' });
+  }
+
+  return data;
+}
 
   /* ------------------------------------------------------------------------
    * Gestionnaires d'événements
